@@ -1,0 +1,39 @@
+version: '3.7'
+services:
+  app:
+    image: maximelaplanche/robert2:latest
+    networks:
+      - robert2_db_network
+      - robert2_network
+      - frontend
+    depends_on:
+      - db
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=frontend
+      - traefik.http.routers.robert2.tls.certresolver=myresolver
+      - traefik.http.routers.robert2.rule=Host(`materiel.laraffinerie.re`)
+      - traefik.http.routers.robert2.entrypoints=entrypoints-https
+#      - traefik.http.services.robert2.loadbalancer.server.port=8080
+
+  db:
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: kAkdVTJgcNUM0i
+      MYSQL_DATABASE: robert2_db
+      MYSQL_USER: robert2_usr
+      MYSQL_PASSWORD: kAkdVTJgcNUM0i
+    volumes:
+      - ./robert2_data:/var/lib/mysql
+    networks:
+      - robert2_db_network
+
+networks:
+  frontend:
+    external: true
+  robert2_network:
+    name: "robert2_network"
+  robert2_db_network:
+    name: "robert2_db_network"
